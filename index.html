@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Check-in App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        #search-container {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        #search {
+            flex-grow: 1;
+            padding: 10px;
+            font-size: 16px;
+        }
+        #clear-search {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .attendee {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+        .attendee-info {
+            flex-grow: 1;
+        }
+        .check-in-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .checked-in {
+            background-color: #4CAF50;
+            color: white;
+        }
+        #download-csv {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #008CBA;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Event Check-in</h1>
+    <div id="search-container">
+        <input type="text" id="search" placeholder="Search attendees...">
+        <button id="clear-search">&times;</button>
+    </div>
+    <div id="attendees-list"></div>
+    <button id="download-csv">Download Checked-in List (CSV)</button>
+
+    <script>
+        const attendees = [
+             {"firstName": "Adil", "lastName": "Warsi", "mobile": "8008733442", "pmiId": "2133753"},
+            {"firstName": "Aditya", "lastName": "Kotamraju", "mobile": "9581242493", "pmiId": "6183572"},
+            {"firstName": "Akhil", "lastName": "Kumar G", "mobile": "9988174444", "pmiId": "8994387"},
+            {"firstName": "Anantharam", "lastName": "Vemuri", "mobile": "9989336593", "pmiId": "523772"},
+            {"firstName": "Aneel KumarReddy", "lastName": "Nalamalpu", "mobile": "7702777696", "pmiId": "6000721"},
+            {"firstName": "Aniruddha", "lastName": "Das", "mobile": "9676008675", "pmiId": "2862059"},
+            {"firstName": "Anirudh", "lastName": "Nallani", "mobile": "7893060905", "pmiId": "9961670"},
+            {"firstName": "Anubhav", "lastName": "Srivastava", "mobile": "9177705532", "pmiId": "5326645"},
+            {"firstName": "Anup", "lastName": "Mathur", "mobile": "9505219969", "pmiId": "1734957"},
+            {"firstName": "Anup Narayan", "lastName": "Mathur", "mobile": "9505219969", "pmiId": "1734957"},
+            {"firstName": "Aravind Kumar", "lastName": "Durga N", "mobile": "9948933321", "pmiId": "8289375"},
+            {"firstName": "Arshad", "lastName": "Mohammad", "mobile": "9381046593", "pmiId": "10188670"},
+            {"firstName": "Arun", "lastName": "Ojha", "mobile": "8019103175", "pmiId": "9932043"},
+            {"firstName": "Arun", "lastName": "Kasula", "mobile": "9000377735", "pmiId": "1872703"},
+            {"firstName": "Ashwin", "lastName": "Preetham", "mobile": "8919674282", "pmiId": "6125725"},
+            {"firstName": "Atchuta Rajesh", "lastName": "Sunkavalli", "mobile": "9848193126", "pmiId": "7668729"},
+            {"firstName": "Avrali", "lastName": "Dutta", "mobile": "9948437365", "pmiId": "8410050"},
+            {"firstName": "Ayyub", "lastName": "Iqbal", "mobile": "+966 535236703", "pmiId": "2973932"},
+            {"firstName": "Balakrishna", "lastName": "Chintala", "mobile": "9160935559", "pmiId": "7638021"},
+            {"firstName": "Bhaskar", "lastName": "Reddy", "mobile": "7755921911", "pmiId": "652646"},
+            {"firstName": "Bhaskar", "lastName": "Kodavala", "mobile": "09666762777", "pmiId": "1718903"},
+            {"firstName": "Bhaskar Rao", "lastName": "Thalatam", "mobile": "9963425868", "pmiId": "4658991"},
+            {"firstName": "Bhaskar Rao", "lastName": "Thalatam", "mobile": "9963425868", "pmiId": "4658991"},
+            {"firstName": "Bhumika", "lastName": "Sharma", "mobile": "9311722880", "pmiId": "6652888"},
+            {"firstName": "Bokkasam", "lastName": "Sai Anusha Kavya Sri", "mobile": "9491804311", "pmiId": "5393326"},
+            {"firstName": "Chanakya", "lastName": "Gavva", "mobile": "9100951326", "pmiId": "8437246"},
+            {"firstName": "Chilukuri", "lastName": "Satish", "mobile": "07798877023", "pmiId": "8486862"},
+            {"firstName": "Chindalur suresh", "lastName": "Babu", "mobile": "9177099974", "pmiId": "2035798"},
+            {"firstName": "Chiranjeevi", "lastName": "Yarragunta", "mobile": "9603441225", "pmiId": "3791243"},
+            {"firstName": "Dayananda", "lastName": "Marthala", "mobile": "9502752870", "pmiId": "6182499"},
+            {"firstName": "Deepthi", "lastName": "Jeelakarra", "mobile": "9491719910", "pmiId": "5829392"},
+            {"firstName": "Dhanunjaya Reddy", "lastName": "Kalvapalli", "mobile": "9642001046", "pmiId": "7450353"},
+            {"firstName": "Dinesh", "lastName": "Sabnani", "mobile": "9581444966", "pmiId": "5093245"},
+            {"firstName": "Dinesh Kumar", "lastName": "Dhunde", "mobile": "9663343244", "pmiId": "3903487"},
+            {"firstName": "Divyasree", "lastName": "Popuri", "mobile": "7680977258", "pmiId": "8051137"},
+            {"firstName": "Diwakar", "lastName": "Kanamarlapudi", "mobile": "9550445671", "pmiId": "2326120"},
+            {"firstName": "Diwakar", "lastName": "Konda", "mobile": "9989477280", "pmiId": "1399827"},
+            {"firstName": "Dr P Vijaya Vardhan", "lastName": "Reddy", "mobile": "9849988395", "pmiId": "2995499"},
+            {"firstName":"Epparla","lastName":"Madhusudhannaidu","mobile":"9092076631","pmiId":"7319677"},
+            {"firstName":"Gajender","lastName":"Bachula","mobile":"9866048776","pmiId":"10012483"},
+            {"firstName":"Gladys","lastName":"Gomez","mobile":"7040131179","pmiId":"10472643"},
+            {"firstName":"Harshad","lastName":"Saluja","mobile":"9078961063","pmiId":"6026944"},
+            {"firstName":"Hemanth","lastName":"M","mobile":"8185091935","pmiId":"8703228"},
+            {"firstName":"Hetal","lastName":"Mehta","mobile":"8443045403","pmiId":"4755832"},
+            {"firstName":"Imthiyaz","lastName":"Gadiman","mobile":"9704762964","pmiId":"10124148"},
+            {"firstName":"Isaac","lastName":"Nemalladinne","mobile":"9894511583","pmiId":"8142247"},
+            {"firstName":"J V N","lastName":"Satheesh Kumar","mobile":"9986026348","pmiId":"8427094"},
+            {"firstName":"Jacob","lastName":"Modiyil","mobile":"9703075247","pmiId":"9912747"},
+            {"firstName":"K.N.KIRAN KUMAR","lastName":"KETHINEEDI","mobile":"08309496163","pmiId":"7596996"},
+            {"firstName":"Kalyan","lastName":"Sathyavada","mobile":"9949990375","pmiId":"1229585"},
+            {"firstName":"karunakar","lastName":"tallada","mobile":"9036418480","pmiId":"10501691‎"},
+            {"firstName":"karunakar","lastName":"tallada","mobile":"9036418480","pmiId":"3893594"},
+            {"firstName":"Keerti","lastName":"Namuduri","mobile":"9727273712","pmiId":"2177038"},
+            {"firstName":"Kiran Kumar","lastName":"Dyavanapalli","mobile":"9160358362","pmiId":"6924732"},
+            {"firstName":"Komal","lastName":"Mathur","mobile":"9959623417","pmiId":"1515922"},
+            {"firstName":"Kris","lastName":"Ravuvari","mobile":"8123575477","pmiId":"1410420"},
+            {"firstName":"Krishna","lastName":"Amara","mobile":"9989067680","pmiId":"1406512"},
+            {"firstName":"Lakkaraju Sreevani","lastName":"Sreevani","mobile":"9849939482","pmiId":"7886308"},
+            {"firstName":"Lakshman kumar","lastName":"Kanukollu","mobile":"9000617284","pmiId":"9924046"},
+            {"firstName":"Lakshmi Narayana","lastName":"Vunnava","mobile":"9246418989","pmiId":"7683187"},
+            {"firstName":"Lakshmi Naryana","lastName":"Vunnava","mobile":"9246418989","pmiId":"7683187"},
+            {"firstName":"Madan Kumar","lastName":"Pernati","mobile":"8886110892","pmiId":"10382196"},
+            {"firstName":"Mallipudi","lastName":"Sailaja","mobile":"9030910080","pmiId":"6712243"},
+            {"firstName":"Manasa","lastName":"Sanem","mobile":"9985350816","pmiId":"5492920"},
+            {"firstName":"Manohar","lastName":"Yerraguntla","mobile":"9849068725","pmiId":"2135233"},
+            {"firstName":"Manohar","lastName":"Meduri","mobile":"9849171682","pmiId":"1886843"},
+            {"firstName":"Manohar","lastName":"Sai Tej Srigiriraju","mobile":"+91 9966696759","pmiId":"9143443"},
+            {"firstName":"MEDSIETTI JAGANMOHAN","lastName":"RAO","mobile":"9677003779","pmiId":"9897464"},
+            {"firstName":"Mithilesh","lastName":"Methuku","mobile":"9849141154","pmiId":"1428457"},
+            {"firstName":"Mohammad","lastName":"Khan","mobile":"7702893868","pmiId":"2888697"},
+            {"firstName":"Mohammed","lastName":"Ariduddin","mobile":"+919347170314","pmiId":"6559220"},
+            {"firstName":"Mohammed","lastName":"Fareeduddin","mobile":"9642903328","pmiId":"2592957"},
+            {"firstName":"Mohammed Hasan","lastName":"Shaikh","mobile":"9892565753","pmiId":"7324341"},
+            {"firstName":"MOHD ABDUL FAIZAN","lastName":"FAIZAN","mobile":"09963595459","pmiId":"7866229"},
+            {"firstName":"Naga","lastName":"Yelisetty","mobile":"09885858688","pmiId":"4006321"},
+            {"firstName":"Nagaraju","lastName":"Sankara Varma","mobile":"9894567629","pmiId":"8143036"},
+            {"firstName":"Namdar","lastName":"Varun Suresh","mobile":"9916760397","pmiId":"10479212‎"},
+            {"firstName":"Nandigam","lastName":"Brahmanandam","mo	bile":"9848554459","pmiId":"3303285"},
+            {"firstName":"Naveen","lastName":"Bobburi","mobile":"9000405009","pmiId":"7089667"},
+            {"firstName":"Naveen","lastName":"Bobburi","mobile":"9000405009","pmiId":"7089667"},
+            {"firstName":"NEERAJ","lastName":"JAIN","mobile":"09584786738","pmiId":"6403649"},
+            {"firstName":"Nithi Kishore","lastName":"Thakur","mobile":"9030344227","pmiId":"10610685"},
+            { firstName: "Pandhapully", lastName: "Sujeeth", mobile: "9959477716", pmiId: "3887088" },
+            { firstName: "Pavan", lastName: "Vaddalapu", mobile: "9441205757", pmiId: "5139133" },
+            { firstName: "Pavan Kumar", lastName: "Varkolu", mobile: "9849156437", pmiId: "5952477" },
+            { firstName: "Phani Ravi", lastName: "Betanabhatla", mobile: "8790959994", pmiId: "1668135" },
+            { firstName: "Pradeep Kumar", lastName: "Madishetti", mobile: "9704495444", pmiId: "5225839" },
+            { firstName: "Pradeep Kumar", lastName: "Sappati", mobile: "9908654724", pmiId: "7769061" },
+            { firstName: "Prasanta Kumar", lastName: "Mohanty", mobile: "08017792477", pmiId: "2682879" },
+            { firstName: "Prashanth Kumar", lastName: "Sreram", mobile: "7993743471", pmiId: "4568633" },
+            { firstName: "Pratap Kumar", lastName: "D V S", mobile: "9611106850", pmiId: "6171605" },
+            { firstName: "Praveen", lastName: "Chintala", mobile: "9849803757", pmiId: "2177877" },
+            { firstName: "PRAVEEN KUMAR", lastName: "VAITLA", mobile: "9246307800", pmiId: "7387690" },
+            { firstName: "Praveen Kumar", lastName: "Vaitla", mobile: "09246307800", pmiId: "7387690" },
+            { firstName: "Purushotham Raju", lastName: "Devaraju", mobile: "9701345876", pmiId: "2886096" },
+            { firstName: "Raghava Reddy", lastName: "Annarapu", mobile: "9059394549", pmiId: "3842495" },
+            { firstName: "RAGHURAM", lastName: "SADDI", mobile: "9398622270", pmiId: "6792810" },
+            { firstName: "Raj Shekhar", lastName: "Gubbala", mobile: "96183 31539", pmiId: "5585972" },
+            { firstName: "Raja Kumar", lastName: "Netala", mobile: "9491138251", pmiId: "636600" },
+            { firstName: "Rajesh", lastName: "Kumar", mobile: "8978990733", pmiId: "3798775" },
+            { firstName: "Rajiv", lastName: "Chauhan", mobile: "9970007560", pmiId: "1134831" },
+            { firstName: "Rajiv", lastName: "Chauhan", mobile: "09970007560", pmiId: "1134831" },
+            { firstName: "Rakesh", lastName: "Guptha", mobile: "9110577841", pmiId: "002230" },
+            { firstName: "Ramakrishna", lastName: "Manne", mobile: "9701111005", pmiId: "1944736" },
+            { firstName: "Ramesh", lastName: "Chepur", mobile: "09849508052", pmiId: "1128991" },
+            { firstName: "Ramesh", lastName: "Nalla", mobile: "9949098787", pmiId: "Rn30841@gmail.com" },
+            { firstName: "Ramesh", lastName: "Endrala", mobile: "9885203697", pmiId: "10383785" },
+            { firstName: "Ranadeer", lastName: "Sappidi", mobile: "8008008323", pmiId: "7112408" },
+            { firstName: "Ravi Shankar Kumar", lastName: "Devaki", mobile: "8600991869", pmiId: "2110165" },
+            { firstName: "Ravi shanker", lastName: "Chitti", mobile: "9700741953", pmiId: "5558313" },
+            { firstName: "Ravindranadh Chowdary", lastName: "Kamma", mobile: "9038645481", pmiId: "6689539" },
+            { firstName: "RAVISAH", lastName: "PAWAR MANISAH", mobile: "7702349933", pmiId: "659956" },
+            { firstName: "Rehan", lastName: "Mohammed", mobile: "8106788005", pmiId: "2006594" },
+            { firstName: "Revanth Varma", lastName: "Vatsavai", mobile: "9030168270", pmiId: "5865008" },
+            { firstName: "Rohith", lastName: "Yeramani", mobile: "9030130567", pmiId: "7598600" },
+            {firstName: "Sahithi", lastName: "Boinpalli", mobile: "8977505188", pmiId: "9824208"},
+            {firstName: "Sai Ram", lastName: "Kallakuri", mobile: "9440043168", pmiId: "1373013"},
+            {firstName: "Saima", lastName: "Mahadik", mobile: "6301477054", pmiId: "9862399"},
+            {firstName: "Saleem", lastName: "Wahlan", mobile: "9700268005", pmiId: "8828761"},
+            {firstName: "Sandeep", lastName: "Verma", mobile: "9866661497", pmiId: "10056628"},
+            {firstName: "SandeepManikanta", lastName: "TG", mobile: "9396960093", pmiId: "4150607"},
+            {firstName: "satish", lastName: "chandra", mobile: "9951223307", pmiId: "7355400"},
+            {firstName: "Satish Kumar Reddy", lastName: "Byreddy", mobile: "8142000909", pmiId: "543948"},
+            {firstName: "Seshu", lastName: "Ganti", mobile: "9989136831", pmiId: "5487062"},
+            {firstName: "Shahbaz", lastName: "Hassan", mobile: "9979502478", pmiId: "3885237"},
+            {firstName: "Shambo", lastName: "Banerjee", mobile: "8335855438", pmiId: "ID6628911"},
+            {firstName: "Shravan", lastName: "Purohit", mobile: "9985215499", pmiId: "2391327"},
+            {firstName: "Shyam", lastName: "Nagamalla", mobile: "7760073455", pmiId: "9527163"},
+            {firstName: "Sirajuddin", lastName: "Mohd", mobile: "9399970088", pmiId: "6949814"},
+            {firstName: "SITARAMA SAI KISHORE", lastName: "SATTIRAJU", mobile: "8885232379", pmiId: "7185998"},
+            {firstName: "Sivakumar", lastName: "Gnanasambandam", mobile: "9849496358", pmiId: "755569"},
+            {firstName: "Sohail", lastName: "Ahamad", mobile: "07406629027", pmiId: "6113336"},
+            {firstName: "Sonali", lastName: "Gondane", mobile: "7675050139", pmiId: "6853627"},
+            {firstName: "Sravan", lastName: "Vorum", mobile: "9676222295", pmiId: "10505709"},
+            {firstName: "Srikanth", lastName: "Tarigopula", mobile: "9849859704", pmiId: "3805838"},
+            {firstName: "Srikanth", lastName: "Addepalli", mobile: "9849636504", pmiId: "2511060"},
+            {firstName: "Srinivas", lastName: "Eppanapalli", mobile: "9989499785", pmiId: "5069623"},
+            {firstName: "Srinivas", lastName: "Eppanapalli", mobile: "9989499785", pmiId: "5069623"},
+            {firstName: "SRISAILAPU", lastName: "PRAVEEN", mobile: "9985309056", pmiId: "3283023"},
+            {firstName: "SriVinod", lastName: "Mula", mobile: "8978722779", pmiId: "5025245"},
+            {firstName: "SriVinod", lastName: "M", mobile: "8978722779", pmiId: "3774537"},
+            {firstName: "subhash reddy", lastName: "gopavaram", mobile: "8977009754", pmiId: "8466533"},
+            {firstName: "Sudarshan", lastName: "Rao", mobile: "9848251405", pmiId: "5040271"},
+            {firstName: "Suman Kumar", lastName: "Bandaru", mobile: "9989613513", pmiId: "10410676"},
+            {firstName: "Sunanda", lastName: "Gundavajhala", mobile: "9491159810", pmiId: "418765"},
+            {firstName: "Sundara Srikrishna Pankaj", lastName: "Kompella", mobile: "9908130520", pmiId: "8317918"},
+            {firstName: "Sunil", lastName: "Varma", mobile: "9497069883", pmiId: "8129289"},
+            {firstName: "Surya", lastName: "Sista", mobile: "8886766691", pmiId: "10464226"},
+            {firstName: "Swaminathan", lastName: "D", mobile: "9972702414", pmiId: "3121437"},
+            {firstName: "Syamala Bai", lastName: "Nalavatula", mobile: "8074042934", pmiId: "8075740"},
+            {firstName: "Udaya Bhaskar", lastName: "Chippa", mobile: "9959366266", pmiId: "1848047"},
+            {firstName: "Uttam", lastName: "Pradhan", mobile: "9908557217", pmiId: "8205246"}
+        ];
+
+        attendees.sort((a, b) => a.firstName.localeCompare(b.firstName));
+
+        const attendeesList = document.getElementById('attendees-list');
+        const searchInput = document.getElementById('search');
+        const clearSearchBtn = document.getElementById('clear-search');
+        const downloadCsvBtn = document.getElementById('download-csv');
+
+        function renderAttendees(filteredAttendees = attendees) {
+            attendeesList.innerHTML = '';
+            filteredAttendees.forEach(attendee => {
+                const attendeeElement = document.createElement('div');
+                attendeeElement.className = 'attendee';
+                attendeeElement.innerHTML = `
+                    <div class="attendee-info">
+                        <strong>${attendee.firstName} ${attendee.lastName}</strong><br>
+                        Mobile: ${attendee.mobile}<br>
+                        PMI ID: ${attendee.pmiId}
+                    </div>
+                    <button class="check-in-btn" onclick="toggleCheckIn(this, '${attendee.pmiId}')">Check In</button>
+                `;
+                attendeesList.appendChild(attendeeElement);
+            });
+        }
+
+        function toggleCheckIn(button, pmiId) {
+            button.classList.toggle('checked-in');
+            if (button.classList.contains('checked-in')) {
+                button.textContent = 'Undo';
+            } else {
+                button.textContent = 'Check In';
+            }
+        }
+
+        function filterAttendees() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const filteredAttendees = attendees.filter(attendee => 
+                attendee.firstName.toLowerCase().includes(searchTerm) ||
+                attendee.lastName.toLowerCase().includes(searchTerm)
+            );
+            renderAttendees(filteredAttendees);
+        }
+
+        function clearSearch() {
+            searchInput.value = '';
+            renderAttendees();
+        }
+
+        function downloadCsv() {
+            const checkedInAttendees = Array.from(document.querySelectorAll('.checked-in'))
+                .map(button => {
+                    const attendeeDiv = button.closest('.attendee');
+                    const info = attendeeDiv.querySelector('.attendee-info').textContent.split('\n');
+                    const name = info[0].trim();
+                    const mobile = info[1].split(':')[1].trim();
+                    const pmiId = info[2].split(':')[1].trim();
+                    return `${name},${mobile},${pmiId}`;
+                });
+
+            const csvContent = "data:text/csv;charset=utf-8," 
+                + "Name,Mobile,PMI ID\n" 
+                + checkedInAttendees.join("\n");
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "checked_in_attendees.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        searchInput.addEventListener('input', filterAttendees);
+        clearSearchBtn.addEventListener('click', clearSearch);
+        downloadCsvBtn.addEventListener('click', downloadCsv);
+
+        renderAttendees();
+    </script>
+</body>
+</html>
